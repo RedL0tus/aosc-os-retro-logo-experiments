@@ -5,6 +5,7 @@ import logging
 
 from math import ceil
 from typing import List, Iterator, Tuple
+from argparse import ArgumentParser
 
 from drawSvg import Drawing, Circle, ArcLine
 
@@ -55,7 +56,15 @@ def uniform_generator(start_radius: int, end_radius: int, interval: int, num_arc
     return None
 
 if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('interval')
+    parser.add_argument('num_arcs')
+    parser.add_argument('-c', '--color', default='#DEDEDEFF')
+    parser.add_argument('-s', '--start_radius', default=85)
+    parser.add_argument('-e', '--end_radius', default = 185)
+    parser.add_argument('-o', '--output', default=SVG_OUTPUT)
+    args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logger.info('Saving SVG to {}'.format(SVG_OUTPUT))
-    generate(uniform_generator(85, 185, 0, 3, '#DEDEDEFF')).saveSvg(SVG_OUTPUT)
+    logger.info('Saving SVG to {}'.format(args.output))
+    generate(uniform_generator(int(args.start_radius), int(args.end_radius), int(args.interval), int(args.num_arcs), args.color)).saveSvg(args.output)
