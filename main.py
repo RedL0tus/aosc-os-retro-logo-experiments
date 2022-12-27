@@ -7,18 +7,24 @@ from math import ceil
 from typing import List, Iterator, Tuple
 from argparse import ArgumentParser
 
-from drawSvg import Drawing, Circle, ArcLine
+from drawSvg import Drawing, Circle, Path
+
 
 SVG_OUTPUT: str = 'output.svg'
 
-def generate_arcs(radius: int, start_deg: int, arc_deg: int, interval_deg: int, stroke_width: int, color: str) -> List[ArcLine]:
+
+def generate_arc_path(radius: int, width: int, start_deg: int, end_deg: int, color: str) -> Path:
+    half_width = ceil(width / 2)
+    ret = Path(fill=color, stroke_width=0)
+    ret.arc(0, 0, radius + half_width, start_deg, end_deg)
+    ret.arc(0, 0, radius - half_width, end_deg, start_deg, cw=True, includeL=True)
+    ret.Z()
+    return ret
+
+
+def generate_arcs(radius: int, start_deg: int, arc_deg: int, interval_deg: int, stroke_width: int, color: str) -> List[Path]:
     logger = logging.getLogger('generate_arcs')
     ret = []
-    common_args = {
-        'stroke': color,
-        'stroke_width': stroke_width,
-        'fill': '#00000000',
-    }
     start_deg1 = start_deg % 360
     end_deg1 = (start_deg1 + arc_deg) % 360
     start_deg2 = (end_deg1 + interval_deg) % 360
@@ -26,8 +32,8 @@ def generate_arcs(radius: int, start_deg: int, arc_deg: int, interval_deg: int, 
     logger.info('ArcLine stroke width: {}'.format(stroke_width))
     logger.info('Generating ArcLine 1 at {}: {} to {}'.format(radius, start_deg1, end_deg1))
     logger.info('Generating ArcLine 2 at {}: {} to {}'.format(radius, start_deg2, end_deg2))
-    ret.append(ArcLine(0, 0, radius, start_deg1, end_deg1, **common_args))
-    ret.append(ArcLine(0, 0, radius, start_deg2, end_deg2, **common_args))
+    ret.append(generate_arc_path(radius, stroke_width, start_deg1, end_deg1, color))
+    ret.append(generate_arc_path(radius, stroke_width, start_deg2, end_deg2, color))
     return ret;
 
 
@@ -55,11 +61,12 @@ def uniform_generator(start_radius: int, end_radius: int, interval: int, num_arc
         yield (int(i), 155, 120, 60, arc_width, color)
     return None
 
+
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('interval')
     parser.add_argument('num_arcs')
-    parser.add_argument('-c', '--color', default='#DEDEDEFF')
+    parser.add_argument('-c', '--color', default='#DEDEDE')
     parser.add_argument('-s', '--start_radius', default=85)
     parser.add_argument('-e', '--end_radius', default = 185)
     parser.add_argument('-o', '--output', default=SVG_OUTPUT)
