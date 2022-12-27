@@ -16,7 +16,7 @@ SVG_OUTPUT: str = 'output.svg'
 def generate_arc_path(radius: int, width: int, start_deg: int, end_deg: int, color: str) -> Path:
     half_width = ceil(width / 2)
     center_radius = radius + half_width
-    ret = Path(stroke=color, stroke_width=width)
+    ret = Path(stroke=color, stroke_width=width, style="stroke-linejoin:round")
     ret.arc(0, 0, center_radius, start_deg, end_deg)
     ret.arc(0, 0, center_radius, end_deg, start_deg, cw=True, includeL=True)
     ret.Z()
